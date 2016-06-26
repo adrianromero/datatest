@@ -19,7 +19,7 @@ public class WebTestQueryServer {
 //        linksource.setUpResources();
         
         // default port 4567
-        get("/:message", new WebQueryLinkServer(null, null));
+        get("/:message", new WebQueryLinkServer(null));
         
 
     }    

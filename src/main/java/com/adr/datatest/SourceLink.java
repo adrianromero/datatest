@@ -18,13 +18,21 @@
 package com.adr.datatest;
 
 import com.adr.data.DataLink;
+import com.adr.data.DataQueryLink;
 import com.adr.data.QueryLink;
+import com.adr.data.security.SecureLink;
 import com.adr.data.sql.SQLDataLink;
 import com.adr.data.sql.SQLQueryLink;
 import com.adr.data.sql.SecureCommands;
 import com.adr.data.sql.SentencePut;
 import com.mchange.v2.c3p0.ComboPooledDataSource;
+import com.rabbitmq.client.Connection;
+import com.rabbitmq.client.ConnectionFactory;
 import java.beans.PropertyVetoException;
+import java.io.IOException;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.concurrent.TimeoutException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.sql.DataSource;
@@ -36,23 +44,16 @@ import javax.sql.DataSource;
 public class SourceLink {
      
     private static ComboPooledDataSource cpds = null;
+    private static Connection connection = null;
     
     public static DataSource getDataSource() {
         if (cpds == null) {
             try {
                 cpds = new ComboPooledDataSource();
-//                cpds.setDriverClass(System.getProperty("databasedriver"));
-//                cpds.setJdbcUrl(System.getProperty("databaseurl"));
-//                cpds.setUser(System.getProperty("databaseuser"));  
-//                cpds.setPassword(System.getProperty("databasepassword"));
-                cpds.setDriverClass("org.postgresql.Driver");
-                cpds.setJdbcUrl("jdbc:postgresql://localhost:5433/hellodb");
-                cpds.setUser("tad");  
-                cpds.setPassword("tad");
-//systemProp.database.driver=org.postgresql.Driver
-//systemProp.database.url=jdbc:postgresql://localhost:5433/hellodb
-//systemProp.database.user=tad
-//systemProp.database.password=tad                
+                cpds.setDriverClass(System.getProperty("database.driver"));
+                cpds.setJdbcUrl(System.getProperty("database.url"));
+                cpds.setUser(System.getProperty("database.user"));  
+                cpds.setPassword(System.getProperty("database.password"));             
             } catch (PropertyVetoException ex) {
                 Logger.getLogger(SourceLink.class.getName()).log(Level.SEVERE, null, ex);
                 throw new RuntimeException(ex);
@@ -61,11 +62,34 @@ public class SourceLink {
         return cpds; 
     }
     
-    public static DataLink getDataLink() {
+    public static Connection getConnection() {
+        if (connection == null) {
+            try {
+                String host = System.getProperty("rabbitmq.host");
+                ConnectionFactory factory = new ConnectionFactory();
+                factory.setHost(host);            
+                connection = factory.newConnection();
+            } catch (IOException | TimeoutException ex) {
+                Logger.getLogger(SourceLink.class.getName()).log(Level.SEVERE, null, ex);
+                throw new RuntimeException(ex);
+            }
+        }
+        return connection;
+    } 
+    
+    public static DataLink createDataLink() {
         return new SQLDataLink(getDataSource(), new SentencePut(), SecureCommands.COMMANDS); 
     }
     
-    public static QueryLink getQueryLink() {
+    public static QueryLink createQueryLink() {
         return new SQLQueryLink(getDataSource(), SecureCommands.QUERIES);
     }  
+    
+    public static DataQueryLink createSecureLink() {
+        return new SecureLink(
+            createQueryLink(),
+            createDataLink(),
+            new HashSet<>(Arrays.asList("username_visible")), // anonymous res
+            new HashSet<>(Arrays.asList("authenticatedres"))); // authenticated res
+    }
 }
