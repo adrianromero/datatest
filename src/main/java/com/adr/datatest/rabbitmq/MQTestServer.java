@@ -3,11 +3,12 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package com.adr.datatest;
+package com.adr.datatest.rabbitmq;
 
 import com.adr.data.DataQueryLink;
 import com.adr.data.rabbitmq.MQDataLinkServer;
 import com.adr.data.rabbitmq.MQQueryLinkServer;
+import com.adr.datatest.SourceLink;
 import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.RpcServer;
 import java.io.IOException;

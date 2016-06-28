@@ -25,6 +25,7 @@ import com.adr.data.sql.SQLDataLink;
 import com.adr.data.sql.SQLQueryLink;
 import com.adr.data.sql.SecureCommands;
 import com.adr.data.sql.SentencePut;
+import com.adr.data.http.WebSecureLinkServer;
 import com.mchange.v2.c3p0.ComboPooledDataSource;
 import com.rabbitmq.client.Connection;
 import com.rabbitmq.client.ConnectionFactory;
@@ -87,6 +88,14 @@ public class SourceLink {
     
     public static DataQueryLink createSecureLink() {
         return new SecureLink(
+            createQueryLink(),
+            createDataLink(),
+            new HashSet<>(Arrays.asList("username_visible")), // anonymous res
+            new HashSet<>(Arrays.asList("authenticatedres"))); // authenticated res
+    }
+    
+    public static WebSecureLinkServer WebSecureLinkServer() {
+        return new WebSecureLinkServer(
             createQueryLink(),
             createDataLink(),
             new HashSet<>(Arrays.asList("username_visible")), // anonymous res

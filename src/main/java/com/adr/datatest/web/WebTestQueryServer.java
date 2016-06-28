@@ -5,8 +5,9 @@
  */
 package com.adr.datatest.web;
 
-import com.adr.data.http.WebQueryLinkServer;
-import static spark.Spark.get;
+import com.adr.data.http.WebSecureLinkServer;
+import com.adr.datatest.SourceLink;
+import spark.Spark;
 
 /**
  *
@@ -14,13 +15,14 @@ import static spark.Spark.get;
  */
 public class WebTestQueryServer {
     public static void main(String[] args) throws Exception {
-        
-//        QueryLinkSourceH2 linksource = new QueryLinkSourceH2();
-//        linksource.setUpResources();
+
+        WebSecureLinkServer route = SourceLink.WebSecureLinkServer();
         
         // default port 4567
-        get("/:message", new WebQueryLinkServer(null));
-        
-
+//        Spark.get("/data/:message", route);
+//        Spark.post("/data", route);
+        Spark.post("/data/:process", (request, response) -> {
+            return route.handle(request, response);
+        });
     }    
 }
