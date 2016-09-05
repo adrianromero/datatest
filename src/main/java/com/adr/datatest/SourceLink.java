@@ -20,12 +20,12 @@ package com.adr.datatest;
 import com.adr.data.DataLink;
 import com.adr.data.DataQueryLink;
 import com.adr.data.QueryLink;
+import com.adr.data.http.WebSecureLinkServer;
+import com.adr.data.security.SecureCommands;
 import com.adr.data.security.SecureLink;
 import com.adr.data.sql.SQLDataLink;
 import com.adr.data.sql.SQLQueryLink;
-import com.adr.data.sql.SecureCommands;
-import com.adr.data.sql.SentencePut;
-import com.adr.data.http.WebSecureLinkServer;
+
 import com.mchange.v2.c3p0.ComboPooledDataSource;
 import com.rabbitmq.client.Connection;
 import com.rabbitmq.client.ConnectionFactory;
@@ -79,7 +79,7 @@ public class SourceLink {
     } 
     
     public static DataLink createDataLink() {
-        return new SQLDataLink(getDataSource(), new SentencePut(), SecureCommands.COMMANDS); 
+        return new SQLDataLink(getDataSource(), SecureCommands.COMMANDS); 
     }
     
     public static QueryLink createQueryLink() {
@@ -90,15 +90,15 @@ public class SourceLink {
         return new SecureLink(
             createQueryLink(),
             createDataLink(),
-            new HashSet<>(Arrays.asList("username_visible")), // anonymous res
+            new HashSet<>(Arrays.asList("USERNAME_VISIBLE")), // anonymous res
             new HashSet<>(Arrays.asList("authenticatedres"))); // authenticated res
     }
     
-    public static WebSecureLinkServer WebSecureLinkServer() {
+    public static WebSecureLinkServer createWebSecureLinkServer() {
         return new WebSecureLinkServer(
             createQueryLink(),
             createDataLink(),
-            new HashSet<>(Arrays.asList("username_visible")), // anonymous res
+            new HashSet<>(Arrays.asList("USERNAME_VISIBLE")), // anonymous res
             new HashSet<>(Arrays.asList("authenticatedres"))); // authenticated res
     }
 }

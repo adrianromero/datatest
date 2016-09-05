@@ -20,7 +20,7 @@ public class WebTestQueryServer {
     
     public static void main(String[] args) throws Exception {
 
-        WebSecureLinkServer route = SourceLink.WebSecureLinkServer();
+        WebSecureLinkServer route = SourceLink.createWebSecureLinkServer();
         
         // default port 4567
         Spark.post("/data/:process", (request, response) -> {
@@ -31,7 +31,7 @@ public class WebTestQueryServer {
             if (session != null) {
                 usersession.setData(session);
             }
-
+         
             String result = route.handle(request.params(":process"), request.body(), usersession);
          
             // store the session
